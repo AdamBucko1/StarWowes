@@ -7,7 +7,7 @@ from appWindow import AppWindow
 
 
 def main():
-    AppWindow(900,500)
+    AppWindow()
 
 
 # Press the green button in the gutter to run the script.
