@@ -48,8 +48,15 @@ class AppWindow():
             keys_pressed = pygame.key.get_pressed()
             self.yellow_ship_movement(keys_pressed)
             self.red_ship_movement(keys_pressed)
-            self.red_projectile.x_position += self.red_projectile.shot_velocity
-            self.yellow_projectile.x_position -= self.yellow_projectile.shot_velocity
+
+            #Appendujem projectiles do projectile listu ale nasledovny for neexistuje, treba debugovat pri L-Shifte
+
+            for num_red_projectile in range(len(self.red_projectiles)):
+                self.red_projectiles[num_red_projectile].x_position += self.red_projectile.shot_velocity
+                print(num_red_projectile)
+
+            for num_yellow_projectile in range(len(self.yellow_projectiles)):
+                self.yellow_projectiles[num_yellow_projectile].x_position -= self.yellow_projectile.shot_velocity
 
             if not self.is_vulnerable(self.yellow_spaceship):
                 self.yellow_spaceship.hit_invurnability_duration-=1
@@ -103,7 +110,7 @@ class AppWindow():
         if keys_pressed[pygame.K_DOWN] and self.yellow_spaceship.hitbox.y + self.yellow_spaceship.velocity + self.yellow_spaceship.hitbox.height < self.WINDOW_HEIGHT:  # YELLOW DOWN\
             self.yellow_spaceship.hitbox.y += self.yellow_spaceship.velocity
         if keys_pressed[pygame.K_KP0] and self.yellow_projectile.x_position<0:
-            self.yellow_projectile=Projectile(self.yellow_spaceship.hitbox.x,self.yellow_spaceship.hitbox.y+self.yellow_spaceship.cannon_iterator()*80)
+            self.yellow_projectiles.append(Projectile(self.yellow_spaceship.hitbox.x,self.yellow_spaceship.hitbox.y+self.yellow_spaceship.cannon_iterator()*80))
 
     def red_ship_movement(self, keys_pressed):
         if keys_pressed[pygame.K_a] and self.red_spaceship.hitbox.x - self.red_spaceship.velocity > 0:  # RED LEFT\
@@ -114,8 +121,8 @@ class AppWindow():
             self.red_spaceship.hitbox.y -= self.red_spaceship.velocity
         if keys_pressed[pygame.K_s] and self.red_spaceship.hitbox.y + self.red_spaceship.velocity + self.red_spaceship.hitbox.height < self.WINDOW_HEIGHT:  # RED DOWN\
             self.red_spaceship.hitbox.y += self.red_spaceship.velocity
-        if keys_pressed[pygame.K_LSHIFT] and self.red_projectile.x_position>self.WINDOW_WIDTH:
-            self.red_projectile=Projectile(self.red_spaceship.hitbox.x,self.red_spaceship.hitbox.y+self.red_spaceship.cannon_iterator()*80)
+        if keys_pressed[pygame.K_LSHIFT]:
+            self.yellow_projectiles.append(Projectile(self.red_spaceship.hitbox.x,self.red_spaceship.hitbox.y+self.red_spaceship.cannon_iterator()*80))
 
     def is_hit(self,target_hitbox,point_damage):
 
