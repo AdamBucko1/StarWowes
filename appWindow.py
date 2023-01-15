@@ -30,6 +30,8 @@ class AppWindow():
         pygame.font.init()
         self.HEALTH_FONT = pygame.font.SysFont('comicssans', 40)
         pygame.display.set_caption("Orbiting Dark")
+        self.red_projectiles=[]
+        self.yellow_projectiles=[]
         self.red_projectile=Projectile(2000,0)
         self.yellow_projectile = Projectile(-200, 0)
 
@@ -48,10 +50,24 @@ class AppWindow():
             self.red_ship_movement(keys_pressed)
             self.red_projectile.x_position += self.red_projectile.shot_velocity
             self.yellow_projectile.x_position -= self.yellow_projectile.shot_velocity
-            if self.yellow_hit_detection():
-                self.yellow_spaceship.health-=1
-            if self.red_hit_detection():
-                self.red_spaceship.health-=1
+
+            if not self.is_vulnerable(self.yellow_spaceship):
+                self.yellow_spaceship.hit_invurnability_duration-=1
+
+            else:
+                if self.is_hit(self.yellow_spaceship.hitbox,self.red_projectile):
+                    self.yellow_spaceship.health-=1
+                    self.yellow_spaceship.hit_invurnability_duration=10
+
+            if not self.is_vulnerable(self.red_spaceship):
+                self.red_spaceship.hit_invurnability_duration -= 1
+
+            else:
+                if self.is_hit(self.red_spaceship.hitbox, self.yellow_projectile):
+                    self.red_spaceship.health -= 1
+                    self.red_spaceship.hit_invurnability_duration = 10
+
+
             self.draw_window(WIN)
         pygame.quit()
 
@@ -92,45 +108,25 @@ class AppWindow():
     def red_ship_movement(self, keys_pressed):
         if keys_pressed[pygame.K_a] and self.red_spaceship.hitbox.x - self.red_spaceship.velocity > 0:  # RED LEFT\
             self.red_spaceship.hitbox.x -= self.red_spaceship.velocity
-        if keys_pressed[
-            pygame.K_d] and self.red_spaceship.hitbox.x + self.red_spaceship.velocity + self.red_spaceship.hitbox.width < self.BORDER.x:  # RED RIGHT\
+        if keys_pressed[pygame.K_d] and self.red_spaceship.hitbox.x + self.red_spaceship.velocity + self.red_spaceship.hitbox.width < self.BORDER.x:  # RED RIGHT\
             self.red_spaceship.hitbox.x += self.red_spaceship.velocity
         if keys_pressed[pygame.K_w] and self.red_spaceship.hitbox.y - self.red_spaceship.velocity > 0:  # RED UP\
             self.red_spaceship.hitbox.y -= self.red_spaceship.velocity
-        if keys_pressed[
-            pygame.K_s] and self.red_spaceship.hitbox.y + self.red_spaceship.velocity + self.red_spaceship.hitbox.height < self.WINDOW_HEIGHT:  # RED DOWN\
+        if keys_pressed[pygame.K_s] and self.red_spaceship.hitbox.y + self.red_spaceship.velocity + self.red_spaceship.hitbox.height < self.WINDOW_HEIGHT:  # RED DOWN\
             self.red_spaceship.hitbox.y += self.red_spaceship.velocity
         if keys_pressed[pygame.K_LSHIFT] and self.red_projectile.x_position>self.WINDOW_WIDTH:
             self.red_projectile=Projectile(self.red_spaceship.hitbox.x,self.red_spaceship.hitbox.y+self.red_spaceship.cannon_iterator()*80)
 
-    def yellow_hit_detection(self):
-        if self.yellow_spaceship.hit_invurnability_duration != 0:
-            self.yellow_spaceship.hit_invurnability_duration -= 1
-            return False
-        if self.yellow_spaceship.hit_invurnability_duration == 0:
-            if self.red_projectile.x_position>self.yellow_spaceship.hitbox.x and  self.red_projectile.x_position<self.yellow_spaceship.hitbox.x+self.yellow_spaceship.hitbox.width:
-                if self.red_projectile.y_position>self.yellow_spaceship.hitbox.y and  self.red_projectile.y_position<self.yellow_spaceship.hitbox.y+self.yellow_spaceship.hitbox.height:
-                    self.yellow_spaceship.hit_invurnability_duration=10
-                    return True
-                else:
-                    return False
-            else:
-                return False
-        else:
-            return False
+    def is_hit(self,target_hitbox,point_damage):
 
-    def red_hit_detection(self):
-        if self.red_spaceship.hit_invurnability_duration != 0:
-            self.red_spaceship.hit_invurnability_duration -= 1
-            return False
-        if self.red_spaceship.hit_invurnability_duration == 0:
-            if self.yellow_projectile.x_position<self.red_spaceship.hitbox.x+self.red_spaceship.hitbox.width and  self.yellow_projectile.x_position>self.red_spaceship.hitbox.x:
-                if self.yellow_projectile.y_position>self.red_spaceship.hitbox.y and  self.yellow_projectile.y_position<self.red_spaceship.hitbox.y+self.red_spaceship.hitbox.height:
-                    self.red_spaceship.hit_invurnability_duration=10
-                    return True
-                else:
-                    return False
-            else:
-                return False
+        if point_damage.x_position>target_hitbox.x and point_damage.x_position<target_hitbox.x+target_hitbox.width and point_damage.y_position>target_hitbox.y and point_damage.y_position<target_hitbox.y+target_hitbox.height:
+            return True
         else:
             return False
+    def is_vulnerable(self,spaceship):
+        if spaceship.hit_invurnability_duration == 0:
+            return True
+        else:
+            return False
+    def lowered_invulnerability_duration(self,spaceship_invunerability_time):
+        return spaceship_invunerability_time-1
