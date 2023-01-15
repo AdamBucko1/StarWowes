@@ -2,6 +2,9 @@ import pygame
 import os
 
 class SpaceShip:
+    BASIC_CANNON_COOLDOWN=10
+    INVULNERABILITY_DURATION=10
+    LOWER_CANNON_OFFSET=80
     def __init__(self, imageName, rotation):
         self.spaceship_width, self.spaceship_height = 55*3, 40*3
         self.spaceship = pygame.image.load(
@@ -9,13 +12,14 @@ class SpaceShip:
         self.spaceship = pygame.transform.rotate(pygame.transform.scale(
             self.spaceship, (self.spaceship_width, self.spaceship_height)), rotation)
         self.velocity = 10
-        self.hit_invurnability_duration=0
+        self.hit_invulnerability_duration=0
         self.cannon_in_use=0
         if self.is_red(rotation):
             self.hitbox = pygame.Rect(100, 300, self.spaceship.get_width(), self.spaceship.get_height())
         else:
             self.hitbox = pygame.Rect(1800, 300, self.spaceship.get_width(), self.spaceship.get_height())
         self.health=15
+        self.cannon_cooldown=0
         # self.hitbox_indicator=pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, self.hitbox.height)
     def is_red(self,rotation):
         if rotation == -90:
@@ -29,4 +33,4 @@ class SpaceShip:
         self.cannon_in_use+=1
         if self.cannon_in_use>1:
             self.cannon_in_use=0
-        return self.cannon_in_use
+        return self.cannon_in_use*self.LOWER_CANNON_OFFSET
