@@ -12,12 +12,11 @@ class SpaceShip:
         self.hit_invurnability_duration=0
         self.cannon_in_use=0
         if self.is_red(rotation):
-            self.hitbox = pygame.Rect(100, 300, self.spaceship_width-40, self.spaceship_height+40)
+            self.hitbox = pygame.Rect(100, 300, self.spaceship.get_width(), self.spaceship.get_height())
         else:
-            self.hitbox = pygame.Rect(1800, 300, self.spaceship_width-40, self.spaceship_height+40)
-
+            self.hitbox = pygame.Rect(1800, 300, self.spaceship.get_width(), self.spaceship.get_height())
+        self.health=15
         # self.hitbox_indicator=pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, self.hitbox.height)
-
     def is_red(self,rotation):
         if rotation == -90:
             return True

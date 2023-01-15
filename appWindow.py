@@ -4,6 +4,7 @@ from spaceship import *
 from projectile import *
 
 class AppWindow():
+
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     BORDER_WIDTH = 10
@@ -15,7 +16,7 @@ class AppWindow():
     WINDOW_HEIGHT = 1080
     WIN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     BORDER = pygame.Rect(WINDOW_WIDTH / 2 + BORDER_WIDTH / 2, 0, BORDER_WIDTH, WINDOW_HEIGHT)
-    HEALTH_FONT = pygame.font.SysFont('comicssans', 40)
+
 
     BACKROUND = pygame.image.load(
         os.path.join('Assets', 'backround1.png'))
@@ -26,7 +27,9 @@ class AppWindow():
     yellow_spaceship = SpaceShip('yellow_venom_spaceship.png', RIGHT_ROTATION)
 
     def __init__(self):
-        pygame.display.set_caption("Star Wowes")
+        pygame.font.init()
+        self.HEALTH_FONT = pygame.font.SysFont('comicssans', 40)
+        pygame.display.set_caption("Orbiting Dark")
         self.red_projectile=Projectile(2000,0)
         self.yellow_projectile = Projectile(-200, 0)
 
@@ -45,24 +48,25 @@ class AppWindow():
             self.red_ship_movement(keys_pressed)
             self.red_projectile.x_position += self.red_projectile.shot_velocity
             self.yellow_projectile.x_position -= self.yellow_projectile.shot_velocity
-
             if self.yellow_hit_detection():
-                print("yellow hit")
+                self.yellow_spaceship.health-=1
             if self.red_hit_detection():
-                print("red hit")
+                self.red_spaceship.health-=1
             self.draw_window(WIN)
         pygame.quit()
 
     def draw_window(self, WIN):
         WIN.blit(self.BACKROUND, (0, 0))
-       # pygame.draw.rect(WIN, self.BLACK, self.red_spaceship.get_hitbox_indicator())
-       # pygame.draw.rect(WIN, self.BLACK, self.yellow_spaceship.get_hitbox_indicator())
+        pygame.draw.rect(WIN, self.BLACK, self.red_spaceship.get_hitbox_indicator())
+        pygame.draw.rect(WIN, self.BLACK, self.yellow_spaceship.get_hitbox_indicator())
         pygame.draw.rect(WIN, self.BLACK, self.BORDER)
         WIN.blit(self.yellow_spaceship.spaceship, (self.yellow_spaceship.hitbox.x, self.yellow_spaceship.hitbox.y))
         WIN.blit(self.red_spaceship.spaceship, (self.red_spaceship.hitbox.x, self.red_spaceship.hitbox.y))
 
-        red_health_text = HEALTH_FONT.render("Health:" + str(red_health), 1, WHITE)
-
+        red_health_text = self.HEALTH_FONT.render("Health:" + str(self.red_spaceship.health), True, self.WHITE)
+        yellow_health_text = self.HEALTH_FONT.render("Health:" + str(self.yellow_spaceship.health), True, self.WHITE)
+        WIN.blit(red_health_text,(10,10))
+        WIN.blit(yellow_health_text, (self.WINDOW_WIDTH - red_health_text.get_width() - 10, 10))
         try:
             WIN.blit(self.red_projectile.shot_image, (self.red_projectile.x_position, self.red_projectile.y_position))
         except:
