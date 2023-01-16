@@ -2,6 +2,7 @@ import pygame
 import os
 from spaceship import *
 from projectile import *
+from spaceship_methods import *
 
 
 class AppWindow():
@@ -22,8 +23,8 @@ class AppWindow():
     BACKROUND = pygame.transform.scale(
         BACKROUND, (WINDOW_WIDTH, WINDOW_HEIGHT))
 
-    red_spaceship = SpaceShip('red_venom_spaceship.png', LEFT_ROTATION)
-    yellow_spaceship = SpaceShip('yellow_venom_spaceship.png', RIGHT_ROTATION)
+    red_spaceship = Spaceship('red_venom_spaceship.png', LEFT_ROTATION)
+    yellow_spaceship = Spaceship('yellow_venom_spaceship.png', RIGHT_ROTATION)
 
     def __init__(self):
         pygame.font.init()
@@ -42,117 +43,68 @@ class AppWindow():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-            if self.red_spaceship.cannon_cooldown>0:
-                self.red_spaceship.cannon_cooldown-=1
-            if self.yellow_spaceship.cannon_cooldown>0:
-                self.yellow_spaceship.cannon_cooldown-=1
+
+            if self.red_spaceship.cannon_cooldown > 0:
+                self.red_spaceship.cannon_cooldown -= 1
+            if self.yellow_spaceship.cannon_cooldown > 0:
+                self.yellow_spaceship.cannon_cooldown -= 1
 
             keys_pressed = pygame.key.get_pressed()
-            self.yellow_ship_movement(keys_pressed)
-            self.red_ship_movement(keys_pressed)
+            self.yellow_spaceship = Spaceship_methods.yellow_ship_movement(keys_pressed, self.yellow_spaceship,self.BORDER,self.WINDOW_WIDTH,self.WINDOW_HEIGHT)
+            self.yellow_projectiles = Spaceship_methods.yellow_ship_shot(keys_pressed, self.yellow_spaceship,self.yellow_projectiles)
 
-            self.red_projectiles = self.handle_projectile_movement(self.red_projectiles, "red")
-            self.yellow_projectiles = self.handle_projectile_movement(self.yellow_projectiles, "yellow")
+            self.red_spaceship = Spaceship_methods.red_ship_movement(keys_pressed, self.red_spaceship,self.BORDER,self.WINDOW_WIDTH,self.WINDOW_HEIGHT)
+            self.red_projectiles = Spaceship_methods.red_ship_shot(keys_pressed, self.red_spaceship,self.red_projectiles)
 
-            if not self.is_vulnerable(self.yellow_spaceship):
+            self.red_projectiles = Projectile.handle_projectile_movement(self.red_projectiles, "red")
+            self.yellow_projectiles = Projectile.handle_projectile_movement(self.yellow_projectiles, "yellow")
+
+            if not Spaceship_methods.is_vulnerable(self.yellow_spaceship):
                 self.yellow_spaceship.hit_invulnerability_duration -= 1
 
             else:
-                if self.is_hit(self.yellow_spaceship.hitbox, self.red_projectiles):
+                if Spaceship_methods.is_hit(self.yellow_spaceship.hitbox, self.red_projectiles):
                     self.yellow_spaceship.health -= 1
-                    self.yellow_spaceship.hit_invulnerability_duration = SpaceShip.INVULNERABILITY_DURATION
+                    self.yellow_spaceship.hit_invulnerability_duration = Spaceship.INVULNERABILITY_DURATION
 
-            if not self.is_vulnerable(self.red_spaceship):
+            if not Spaceship_methods.is_vulnerable(self.red_spaceship):
                 self.red_spaceship.hit_invulnerability_duration -= 1
 
             else:
-                if self.is_hit(self.red_spaceship.hitbox, self.yellow_projectiles):
+                if Spaceship_methods.is_hit(self.red_spaceship.hitbox, self.yellow_projectiles):
                     self.red_spaceship.health -= 1
-                    self.red_spaceship.hit_invulnerability_duration = SpaceShip.INVULNERABILITY_DURATION
+                    self.red_spaceship.hit_invulnerability_duration = Spaceship.INVULNERABILITY_DURATION
 
             self.draw_window(WIN)
         pygame.quit()
 
     def draw_window(self, WIN):
-        WIN.blit(self.BACKROUND, (0, 0))
-        pygame.draw.rect(WIN, self.BLACK, self.red_spaceship.get_hitbox_indicator())
-        pygame.draw.rect(WIN, self.BLACK, self.yellow_spaceship.get_hitbox_indicator())
-        pygame.draw.rect(WIN, self.BLACK, self.BORDER)
-        WIN.blit(self.yellow_spaceship.spaceship, (self.yellow_spaceship.hitbox.x, self.yellow_spaceship.hitbox.y))
-        WIN.blit(self.red_spaceship.spaceship, (self.red_spaceship.hitbox.x, self.red_spaceship.hitbox.y))
+        self.display_arena(WIN)
+        self.display_spaceships(WIN)
+        self.display_healt(WIN)
+        self.display_projectiles(WIN)
+        pygame.display.update()
 
+    def display_healt(self,WIN):
         red_health_text = self.HEALTH_FONT.render("Health:" + str(self.red_spaceship.health), True, self.WHITE)
         yellow_health_text = self.HEALTH_FONT.render("Health:" + str(self.yellow_spaceship.health), True, self.WHITE)
         WIN.blit(red_health_text, (10, 10))
         WIN.blit(yellow_health_text, (self.WINDOW_WIDTH - red_health_text.get_width() - 50, 10))
-
+    def display_arena(self,WIN):
+        WIN.blit(self.BACKROUND, (0, 0))
+        pygame.draw.rect(WIN, self.BLACK, self.red_spaceship.get_hitbox_indicator())
+        pygame.draw.rect(WIN, self.BLACK, self.yellow_spaceship.get_hitbox_indicator())
+        pygame.draw.rect(WIN, self.BLACK, self.BORDER)
+    def display_spaceships(self,WIN):
+        WIN.blit(self.yellow_spaceship.spaceship, (self.yellow_spaceship.hitbox.x, self.yellow_spaceship.hitbox.y))
+        WIN.blit(self.red_spaceship.spaceship, (self.red_spaceship.hitbox.x, self.red_spaceship.hitbox.y))
+    def display_projectiles(self,WIN):
         for num_red_projectile in range(len(self.red_projectiles)):
             WIN.blit(self.red_projectiles[num_red_projectile].shot_image, (
-            self.red_projectiles[num_red_projectile].x_position,
-            self.red_projectiles[num_red_projectile].y_position))
+                self.red_projectiles[num_red_projectile].x_position,
+                self.red_projectiles[num_red_projectile].y_position))
 
         for num_yellow_projectile in range(len(self.yellow_projectiles)):
             WIN.blit(self.yellow_projectiles[num_yellow_projectile].shot_image, (
-            self.yellow_projectiles[num_yellow_projectile].x_position,
-            self.yellow_projectiles[num_yellow_projectile].y_position))
-
-        pygame.display.update()
-
-    def yellow_ship_movement(self, keys_pressed):
-        if keys_pressed[
-            pygame.K_LEFT] and self.yellow_spaceship.hitbox.x - self.yellow_spaceship.velocity > self.BORDER.x + self.BORDER.width:  # YELLOW LEFT\#
-            self.yellow_spaceship.hitbox.x -= self.yellow_spaceship.velocity
-        if keys_pressed[
-            pygame.K_RIGHT] and self.yellow_spaceship.hitbox.x + self.yellow_spaceship.velocity + self.yellow_spaceship.hitbox.width < self.WINDOW_WIDTH:  # YELLOW RIGHT\
-            self.yellow_spaceship.hitbox.x += self.yellow_spaceship.velocity
-        if keys_pressed[
-            pygame.K_UP] and self.yellow_spaceship.hitbox.y - self.yellow_spaceship.velocity > 0:  # YELLOW UP\
-            self.yellow_spaceship.hitbox.y -= self.yellow_spaceship.velocity
-        if keys_pressed[
-            pygame.K_DOWN] and self.yellow_spaceship.hitbox.y + self.yellow_spaceship.velocity + self.yellow_spaceship.hitbox.height < self.WINDOW_HEIGHT:  # YELLOW DOWN\
-            self.yellow_spaceship.hitbox.y += self.yellow_spaceship.velocity
-        if keys_pressed[pygame.K_KP0] and self.yellow_spaceship.cannon_cooldown==0:
-            self.yellow_projectiles.append(Projectile(self.yellow_spaceship.hitbox.x,
-                                                      self.yellow_spaceship.hitbox.y + self.yellow_spaceship.cannon_iterator()))
-            self.yellow_spaceship.cannon_cooldown = SpaceShip.BASIC_CANNON_COOLDOWN
-    def red_ship_movement(self, keys_pressed):
-        if keys_pressed[pygame.K_a] and self.red_spaceship.hitbox.x - self.red_spaceship.velocity > 0:  # RED LEFT\
-            self.red_spaceship.hitbox.x -= self.red_spaceship.velocity
-        if keys_pressed[
-            pygame.K_d] and self.red_spaceship.hitbox.x + self.red_spaceship.velocity + self.red_spaceship.hitbox.width < self.BORDER.x:  # RED RIGHT\
-            self.red_spaceship.hitbox.x += self.red_spaceship.velocity
-        if keys_pressed[pygame.K_w] and self.red_spaceship.hitbox.y - self.red_spaceship.velocity > 0:  # RED UP\
-            self.red_spaceship.hitbox.y -= self.red_spaceship.velocity
-        if keys_pressed[
-            pygame.K_s] and self.red_spaceship.hitbox.y + self.red_spaceship.velocity + self.red_spaceship.hitbox.height < self.WINDOW_HEIGHT:  # RED DOWN\
-            self.red_spaceship.hitbox.y += self.red_spaceship.velocity
-        if keys_pressed[pygame.K_LSHIFT] and self.red_spaceship.cannon_cooldown==0:
-            self.red_projectiles.append(Projectile(self.red_spaceship.hitbox.x,
-                                                   self.red_spaceship.hitbox.y + self.red_spaceship.cannon_iterator()))
-            self.red_spaceship.cannon_cooldown=SpaceShip.BASIC_CANNON_COOLDOWN
-
-    def is_hit(self, target_hitbox, laser_projectiles):
-        for projectile in laser_projectiles:
-            if projectile.x_position > target_hitbox.x and projectile.x_position < target_hitbox.x + target_hitbox.width and projectile.y_position > target_hitbox.y and projectile.y_position < target_hitbox.y + target_hitbox.height:
-                return True
-        return False
-
-    def is_vulnerable(self, spaceship):
-        if spaceship.hit_invulnerability_duration == 0:
-            return True
-        else:
-            return False
-
-    def lowered_invulnerability_duration(self, spaceship_invunerability_time):
-        return spaceship_invunerability_time - 1
-
-    def handle_projectile_movement(self, projectiles, color):
-        if color == "red":
-            for num_projectile in range(len(projectiles)):
-                projectiles[num_projectile].x_position += projectiles[num_projectile].shot_velocity
-            projectiles = [item for item in projectiles if item.x_position < 2000]
-        else:
-            for num_projectile in range(len(projectiles)):
-                projectiles[num_projectile].x_position -= projectiles[num_projectile].shot_velocity
-            projectiles = [item for item in projectiles if item.x_position > -100]
-        return projectiles
+                self.yellow_projectiles[num_yellow_projectile].x_position,
+                self.yellow_projectiles[num_yellow_projectile].y_position))
