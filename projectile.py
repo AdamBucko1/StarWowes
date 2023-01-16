@@ -17,9 +17,9 @@ class Projectile:
         if color == "red":
             for num_projectile in range(len(projectiles)):
                 projectiles[num_projectile].x_position += projectiles[num_projectile].shot_velocity
-            new_projectiles = [item for item in projectiles if item.x_position < 2000]
+            projectiles = [item for item in projectiles if item.x_position < 2000]
         else:
             for num_projectile in range(len(projectiles)):
                 projectiles[num_projectile].x_position -= projectiles[num_projectile].shot_velocity
-            new_projectiles = [item for item in projectiles if item.x_position > -100]
-        return new_projectiles
+            projectiles = [item for item in projectiles if item.x_position > -100]
+
