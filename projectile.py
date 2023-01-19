@@ -3,7 +3,7 @@ import os
 
 
 class Projectile:
-    def __init__(self, x, y):
+    def __init__(self, x, y, color):
         self.shot_image = pygame.image.load(
             os.path.join('Assets', 'basic_laser_shot.png'))
         self.shot_image = pygame.transform.scale(
@@ -12,14 +12,16 @@ class Projectile:
 
         self.x_position = x + 10
         self.y_position = y + 10
+        self.color=color
 
-    def handle_projectile_movement(projectiles: list, color):
-        if color == "red":
-            for num_projectile in range(len(projectiles)):
-                projectiles[num_projectile].x_position += projectiles[num_projectile].shot_velocity
-            projectiles = [item for item in projectiles if item.x_position < 2000]
+    def projectile_movement(self):
+        if self.color == "red":
+            self.x_position += self.shot_velocity
         else:
-            for num_projectile in range(len(projectiles)):
-                projectiles[num_projectile].x_position -= projectiles[num_projectile].shot_velocity
-            projectiles = [item for item in projectiles if item.x_position > -100]
+            self.x_position -= self.shot_velocity
+
+    def projectile_out_of_bounds(self):
+        if -100 > self.x_position or  2000 < self.x_position:
+            return True
+        return False
 

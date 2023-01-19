@@ -22,7 +22,6 @@ class Spaceship:
             self.hitbox = pygame.Rect(100, 300, self.spaceship.get_width(), self.spaceship.get_height())
         else:
             self.hitbox = pygame.Rect(1800, 300, self.spaceship.get_width(), self.spaceship.get_height())
-        # self.hitbox_indicator=pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, self.hitbox.height)
     def is_red(self,rotation):
         if rotation == -90:
             return True
