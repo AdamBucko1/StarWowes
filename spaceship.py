@@ -2,7 +2,7 @@ import pygame
 import os
 
 class Spaceship:
-    BASIC_CANNON_COOLDOWN=20
+    BASIC_CANNON_COOLDOWN=35
     INVULNERABILITY_DURATION=10
     LOWER_CANNON_OFFSET=80
     def __init__(self, imageName, rotation):

@@ -4,8 +4,12 @@ import os
 
 class Projectile:
     def __init__(self, x, y, color):
-        self.shot_image = pygame.image.load(
-            os.path.join('Assets', 'basic_laser_shot.png'))
+        if color=="red":
+            self.shot_image = pygame.image.load(
+                os.path.join('Assets', 'basic_laser_shot.png'))
+        else:
+            self.shot_image = pygame.image.load(
+                os.path.join('Assets', 'basic_laser_shot_yellow.png'))
         self.shot_image = pygame.transform.scale(
             self.shot_image, (100, 10))
         self.shot_velocity = 50

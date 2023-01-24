@@ -43,7 +43,8 @@ def yellow_ship_shot(keys_pressed, yellow_spaceship: Spaceship, yellow_projectil
         yellow_projectiles.append(Projectile(yellow_spaceship.hitbox.x,
                                              yellow_spaceship.hitbox.y + yellow_spaceship.cannon_iterator(),"yellow"))
         yellow_spaceship.cannon_cooldown = Spaceship.BASIC_CANNON_COOLDOWN
-
+        return True
+    return False
 
 def red_ship_movement(keys_pressed, red_spaceship, border, window_width, window_height):
     if keys_pressed[pygame.K_a] \
@@ -65,6 +66,8 @@ def red_ship_shot(keys_pressed, red_spaceship: Spaceship, red_projectiles: list)
         red_projectiles.append(Projectile(red_spaceship.hitbox.x,
                                           red_spaceship.hitbox.y + red_spaceship.cannon_iterator(),"red"))
         red_spaceship.cannon_cooldown = Spaceship.BASIC_CANNON_COOLDOWN
+        return True
+    return False
 
 
 def handle_cannon_cooldown(red_spaceship: Spaceship, yellow_spaceship: Spaceship):
@@ -77,8 +80,10 @@ def handle_cannon_cooldown(red_spaceship: Spaceship, yellow_spaceship: Spaceship
 def manage_hit_detection(spaceship, projectile):
     if not is_vulnerable(spaceship):
         spaceship.hit_invulnerability_duration -= 1
+        return False
 
     else:
         if is_hit(spaceship.hitbox, projectile):
             spaceship.health -= 1
             spaceship.hit_invulnerability_duration = Spaceship.INVULNERABILITY_DURATION
+            return True
