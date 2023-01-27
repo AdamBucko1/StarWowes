@@ -15,8 +15,7 @@ def is_hit(target_hitbox, laser_projectiles: list):
 def is_vulnerable(spaceship: Spaceship):
     if spaceship.hit_invulnerability_duration == 0:
         return True
-    else:
-        return False
+    return False
 
 
 def lowered_invulnerability_duration(spaceship_invunerability_time):
@@ -78,12 +77,11 @@ def handle_cannon_cooldown(red_spaceship: Spaceship, yellow_spaceship: Spaceship
 
 
 def manage_hit_detection(spaceship, projectile):
-    if not is_vulnerable(spaceship):
-        spaceship.hit_invulnerability_duration -= 1
-        return False
-
-    else:
-        if is_hit(spaceship.hitbox, projectile):
-            spaceship.health -= 1
-            spaceship.hit_invulnerability_duration = Spaceship.INVULNERABILITY_DURATION
-            return True
+    if is_hit(spaceship.hitbox, projectile):
+        if not is_vulnerable(spaceship):
+            spaceship.hit_invulnerability_duration -= 1
+            return False
+        spaceship.health -= 1
+        spaceship.hit_invulnerability_duration = Spaceship.INVULNERABILITY_DURATION
+        return True
+    return False

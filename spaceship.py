@@ -2,7 +2,7 @@ import pygame
 import os
 
 class Spaceship:
-    BASIC_CANNON_COOLDOWN=35
+    BASIC_CANNON_COOLDOWN=5
     INVULNERABILITY_DURATION=10
     LOWER_CANNON_OFFSET=80
     def __init__(self, imageName, rotation):
@@ -25,8 +25,7 @@ class Spaceship:
     def is_red(self,rotation):
         if rotation == -90:
             return True
-        else:
-            return False
+        return False
     def get_hitbox_indicator(self):
         hitbox_indicator = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, self.hitbox.height)
         return hitbox_indicator
