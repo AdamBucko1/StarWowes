@@ -39,7 +39,6 @@ class AppWindow():
 
     def __init__(self):
         pygame.font.init()
-        #pygame.mixer.pre_init(44100,-16,4, 1024)
         pygame.mixer.init()
         pygame.mixer_music.load(os.path.join('Assets', 'Soundtrack.ogg'))
         pygame.mixer_music.play(-1)
@@ -74,12 +73,7 @@ class AppWindow():
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_p:
-                        if self.game_state == GameState.RUNNING:
-                            self.game_state = GameState.PAUSED
-                            pygame.mixer_music.pause()
-                        else:
-                            self.game_state = GameState.RUNNING
-                            pygame.mixer_music.unpause()
+                        self.handle_pause()
                     if event.key==pygame.K_r and self.game_state== GameState.WINNER:
                         self.restart_game()
                         self.game_state = GameState.RUNNING
@@ -90,36 +84,35 @@ class AppWindow():
                 self.game_state = GameState.WINNER
 
             if self.game_state == GameState.RUNNING:
-                spaceship_methods.handle_cannon_cooldown(self.red_spaceship, self.yellow_spaceship)
-                keys_pressed = pygame.key.get_pressed()
-
-                spaceship_methods.yellow_ship_movement(keys_pressed, self.yellow_spaceship, self.BORDER,
-                                                       self.WINDOW_WIDTH,
-                                                       self.WINDOW_HEIGHT)
-                spaceship_methods.red_ship_movement(keys_pressed, self.red_spaceship, self.BORDER, self.WINDOW_WIDTH,
-                                                    self.WINDOW_HEIGHT)
-
-                if spaceship_methods.yellow_ship_shot(keys_pressed, self.yellow_spaceship, self.yellow_projectiles):
-                    self.SHOT_SOUND.play()
-                if spaceship_methods.red_ship_shot(keys_pressed, self.red_spaceship, self.red_projectiles):
-                    self.SHOT_SOUND.play()
-                for projectile in self.red_projectiles:
-                    projectile.projectile_movement()
-                    if projectile.projectile_out_of_bounds():
-                        self.red_projectiles.remove(projectile)
-
-                for projectile in self.yellow_projectiles:
-                    projectile.projectile_movement()
-                    if projectile.projectile_out_of_bounds():
-                        self.yellow_projectiles.remove(projectile)
-
-                if spaceship_methods.manage_hit_detection(self.yellow_spaceship, self.red_projectiles):
-                    self.HIT_SOUND.play()
-                if spaceship_methods.manage_hit_detection(self.red_spaceship, self.yellow_projectiles):
-                    self.HIT_SOUND.play()
+                self.game_runner()
 
             self.draw_window(WIN)
         pygame.quit()
+
+    def game_runner(self):
+        spaceship_methods.handle_cannon_cooldown(self.red_spaceship, self.yellow_spaceship)
+        keys_pressed = pygame.key.get_pressed()
+        spaceship_methods.yellow_ship_movement(keys_pressed, self.yellow_spaceship, self.BORDER,
+                                               self.WINDOW_WIDTH,
+                                               self.WINDOW_HEIGHT)
+        spaceship_methods.red_ship_movement(keys_pressed, self.red_spaceship, self.BORDER, self.WINDOW_WIDTH,
+                                            self.WINDOW_HEIGHT)
+        if spaceship_methods.yellow_ship_shot(keys_pressed, self.yellow_spaceship, self.yellow_projectiles):
+            self.SHOT_SOUND.play()
+        if spaceship_methods.red_ship_shot(keys_pressed, self.red_spaceship, self.red_projectiles):
+            self.SHOT_SOUND.play()
+        for projectile in self.red_projectiles:
+            projectile.projectile_movement()
+            if projectile.projectile_out_of_bounds():
+                self.red_projectiles.remove(projectile)
+        for projectile in self.yellow_projectiles:
+            projectile.projectile_movement()
+            if projectile.projectile_out_of_bounds():
+                self.yellow_projectiles.remove(projectile)
+        if spaceship_methods.manage_hit_detection(self.yellow_spaceship, self.red_projectiles):
+            self.HIT_SOUND.play()
+        if spaceship_methods.manage_hit_detection(self.red_spaceship, self.yellow_projectiles):
+            self.HIT_SOUND.play()
 
     def draw_window(self, WIN):
         self.display_arena(WIN)
@@ -134,6 +127,13 @@ class AppWindow():
         self.display_pause_info(WIN)
         pygame.display.update()
 
+    def handle_pause(self):
+        if self.game_state == GameState.RUNNING:
+            self.game_state = GameState.PAUSED
+            pygame.mixer_music.pause()
+        else:
+            self.game_state = GameState.RUNNING
+            pygame.mixer_music.unpause()
     def display_healt(self, WIN):
         red_health_text = self.HEALTH_FONT.render("Health:" + str(self.red_spaceship.health), True, self.WHITE)
         yellow_health_text = self.HEALTH_FONT.render("Health:" + str(self.yellow_spaceship.health), True, self.WHITE)
